@@ -12,6 +12,25 @@ export interface LimitConfig {
   algorithm?: "token-bucket" | "sliding-window";
 }
 
+export interface RedisConfig {
+  /** ioredis (or compatible) client instance */
+  client: import("./store/redis").RedisClient;
+  /** Tokens to request per lease from Redis (default: 50) */
+  leaseSize?: number;
+  /** Refill when local tokens fall to this fraction of leaseSize (default: 0.2) */
+  lowWatermark?: number;
+  /** Enable cross-node denylist via pub/sub (default: true) */
+  denylist?: boolean;
+}
+
+export interface RiskConfig {
+  signals: import("./risk/signals").Signal[];
+  /** Score threshold for "challenge" decision (default 0.5) */
+  challengeThreshold?: number;
+  /** Score threshold for "block" decision (default 0.8) */
+  blockThreshold?: number;
+}
+
 export interface GuardConfig {
   limits: {
     default: LimitConfig;
@@ -21,6 +40,12 @@ export interface GuardConfig {
   onFailure?: "fail-open" | "fail-closed";
   /** How often (ms) to run TTL eviction on the memory store */
   evictionIntervalMs?: number;
+  /** Provide a Redis config to enable distributed mode */
+  redis?: RedisConfig;
+  /** Called whenever a Redis error occurs */
+  onError?: (err: unknown) => void;
+  /** Enable risk scoring pipeline */
+  risk?: RiskConfig;
 }
 
 /** Parsed, normalized limit with window in milliseconds */

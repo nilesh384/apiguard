@@ -1,7 +1,6 @@
 import { BucketState, newBucketState } from "../algorithms/token-bucket";
 import { WindowState, newWindowState } from "../algorithms/sliding-window";
-
-type AlgoState = BucketState | WindowState;
+import type { Store, AlgoState } from "./interface";
 
 interface Entry {
   state: AlgoState;
@@ -9,7 +8,7 @@ interface Entry {
   expiresAt: number;
 }
 
-export class MemoryStore {
+export class MemoryStore implements Store {
   private map = new Map<string, Entry>();
   private timer: ReturnType<typeof setInterval> | null = null;
 

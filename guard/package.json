@@ -45,11 +45,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/guard"
+    "url": "https://github.com/nilesh384/apiguard"
   },
-  "homepage": "https://github.com/your-org/guard#readme",
+  "homepage": "https://github.com/nilesh384/apiguard#readme",
   "bugs": {
-    "url": "https://github.com/your-org/guard/issues"
+    "url": "https://github.com/nilesh384/apiguard/issues"
   },
   "engines": {
     "node": ">=18.0.0"

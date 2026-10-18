@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  node1:
+    build:
+      context: ./packages/guard
+      dockerfile: Dockerfile.dev
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - NODE_ID=node1
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  node2:
+    build:
+      context: ./packages/guard
+      dockerfile: Dockerfile.dev
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - NODE_ID=node2
+      - PORT=3002
+    ports:
+      - "3002:3002"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  node3:
+    build:
+      context: ./packages/guard
+      dockerfile: Dockerfile.dev
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - NODE_ID=node3
+      - PORT=3003
+    ports:
+      - "3003:3003"
+    depends_on:
+      redis:
+        condition: service_healthy

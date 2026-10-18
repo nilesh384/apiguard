@@ -1,0 +1,14 @@
+# source — users get compiled dist only
+src/
+tests/
+benchmarks/
+
+# config files
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+Dockerfile.dev
+
+# misc
+*.log
+.env

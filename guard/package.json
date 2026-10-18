@@ -1,7 +1,7 @@
 {
-  "name": "@your-org/guard",
+  "name": "apiguard",
   "version": "0.1.0",
-  "description": "Sub-millisecond rate limiter with local token leasing and distributed sync",
+  "description": "Sub-millisecond rate limiter with local token leasing, distributed Redis sync, and pluggable risk scoring",
   "main": "./dist/index.cjs",
   "type": "module",
   "module": "./dist/index.js",
@@ -19,11 +19,46 @@
     "test:watch": "vitest",
     "dev": "tsup --watch",
     "bench": "node --loader ts-node/esm benchmarks/run.ts",
-    "bench:accuracy": "node --loader ts-node/esm benchmarks/accuracy.ts"
+    "bench:accuracy": "node --loader ts-node/esm benchmarks/accuracy.ts",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "rate-limiter",
+    "rate-limiting",
+    "token-bucket",
+    "sliding-window",
+    "redis",
+    "distributed",
+    "express",
+    "fastify",
+    "hono",
+    "fraud-detection",
+    "risk-scoring",
+    "middleware"
+  ],
+  "author": "Nilesh Bera",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/guard"
+  },
+  "homepage": "https://github.com/your-org/guard#readme",
+  "bugs": {
+    "url": "https://github.com/your-org/guard/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.19.43",
+    "fastify": "^5.12.7",
+    "hono": "^4.13.13",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
     "vitest": "^2.1.9"
@@ -34,8 +69,14 @@
     "hono": ">=4.0.0"
   },
   "peerDependenciesMeta": {
-    "express": { "optional": true },
-    "fastify": { "optional": true },
-    "hono": { "optional": true }
+    "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "hono": {
+      "optional": true
+    }
   }
 }

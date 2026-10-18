@@ -1,4 +1,4 @@
-# apiguard
+# apiguardlimitjs
 
 Sub-millisecond rate limiter with local token leasing, distributed Redis sync, and a pluggable risk-scoring pipeline.
 
@@ -44,7 +44,7 @@ Sub-millisecond rate limiter with local token leasing, distributed Redis sync, a
 ## Install
 
 ```bash
-npm install apiguard
+npm install apiguardlimitjs
 # peer deps — install only what you use
 npm install express        # Express adapter
 npm install fastify        # Fastify adapter
@@ -60,7 +60,7 @@ npm install ioredis        # distributed mode
 
 ```ts
 import express from "express";
-import { createGuard, expressMiddleware } from "apiguard";
+import { createGuard, expressMiddleware } from "apiguardlimitjs";
 
 const guard = createGuard({
   limits: {
@@ -82,7 +82,7 @@ app.use(expressMiddleware(guard, {
 
 ```ts
 import Redis from "ioredis";
-import { createGuard } from "apiguard";
+import { createGuard } from "apiguardlimitjs";
 
 const guard = createGuard({
   limits: { default: { rate: 1000, per: "1m" } },
@@ -107,7 +107,7 @@ import {
   geoJumpSignal,
   suspiciousUaSignal,
   ReputationList,
-} from "apiguard";
+} from "apiguardlimitjs";
 
 const rep = new ReputationList();
 rep.loadText(await fs.readFile("blocklist.txt", "utf8"));
@@ -270,7 +270,7 @@ VPC
 
 ```ts
 // backend/src/middleware/rateLimit.ts
-import { createGuard, expressMiddleware, velocitySignal, failedAuthSignal, suspiciousUaSignal } from "apiguard";
+import { createGuard, expressMiddleware, velocitySignal, failedAuthSignal, suspiciousUaSignal } from "apiguardlimitjs";
 
 export const guard = createGuard({
   limits: {
@@ -373,7 +373,7 @@ Everything else — limits, risk config, middleware — stays exactly the same.
 ## IP reputation with MaxMind GeoLite2
 
 ```ts
-import { ReputationList } from "apiguard";
+import { ReputationList } from "apiguardlimitjs";
 import { createReadStream } from "fs";
 import readline from "readline";
 

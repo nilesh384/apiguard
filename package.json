@@ -1,5 +1,5 @@
 {
-  "name": "apiguard",
+  "name": "apiguardlimitjs",
   "version": "0.1.0",
   "description": "Sub-millisecond rate limiter with local token leasing, distributed Redis sync, and pluggable risk scoring",
   "main": "./dist/index.cjs",

@@ -1,35 +1,54 @@
 import type { Request, Response, NextFunction } from "express";
 import type { Guard } from "../guard";
 import type { LimitConfig } from "../config";
+import type { SignalContext } from "../risk/signals";
 
-/** Extract identifier from request based on the "by" config */
-function extractKey(req: Request, by: LimitConfig["by"] = "ip"): string {
-  if (typeof by === "function") return by(req);
-
-  const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim()
-    ?? req.socket?.remoteAddress
-    ?? "unknown";
-
-  // user may be attached by auth middleware
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user: string = (req as any).user?.id ?? (req as any).user?.sub ?? "anon";
-
-  if (by === "ip") return ip;
-  if (by === "user") return user;
-  return `${ip}:${user}`;
+function extractIp(req: Request): string {
+  const fwd = req.headers["x-forwarded-for"] as string | undefined;
+  if (fwd) return fwd.split(",")[0].trim();
+  return req.socket?.remoteAddress ?? "unknown";
 }
 
-export function expressMiddleware(guard: Guard, limits: Record<string, { by?: LimitConfig["by"] }>) {
+function extractIdentifier(req: Request, by: LimitConfig["by"] = "ip"): string {
+  if (typeof by === "function") return by(req);
+  const ip = extractIp(req);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const user: string = (req as any).user?.id ?? (req as any).user?.sub ?? "anon";
+  if (by === "user") return user;
+  if (by === "ip+user") return `${ip}:${user}`;
+  return ip;
+}
+
+export interface ExpressGuardOptions {
+  limits: Record<string, { by?: LimitConfig["by"] }>;
+  /** If true, populate riskCtx from the request for risk scoring */
+  risk?: boolean;
+}
+
+export function expressMiddleware(guard: Guard, opts: ExpressGuardOptions) {
   return (req: Request, res: Response, next: NextFunction) => {
     const route = `${req.method} ${req.path}`;
-    const ruleName = limits[route] ? route : "default";
-    const by = limits[ruleName]?.by ?? limits["default"]?.by ?? "ip";
-    const identifier = extractKey(req, by);
+    const ruleName = opts.limits[route] ? route : "default";
+    const by = opts.limits[ruleName]?.by ?? opts.limits["default"]?.by ?? "ip";
+    const identifier = extractIdentifier(req, by);
 
-    const result = guard.check(identifier, route);
+    const riskCtx: Partial<SignalContext> | undefined = opts.risk
+      ? {
+          ip: extractIp(req),
+          requestVelocity: 0,
+          failedAuthStreak: 0,
+          userAgent: req.headers["user-agent"],
+        }
+      : undefined;
+
+    const result = guard.check(identifier, route, 1, riskCtx);
 
     if (!result.allowed) {
-      res.status(429).json({ error: "Too Many Requests", rule: result.matchedRule });
+      res.status(429).json({
+        error: "Too Many Requests",
+        rule: result.matchedRule,
+        ...(result.risk && { riskScore: result.risk.score }),
+      });
       return;
     }
     next();
